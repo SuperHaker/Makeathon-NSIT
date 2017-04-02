@@ -15,12 +15,12 @@ import java.util.List;
 
 public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 
+    private final LayoutInflater inflater;
     Context context;
     List<Student> dataSource;
-    private final LayoutInflater inflater;
 
 
-    public ListAdapter(Context context, List<Student> dataSource){
+    public ListAdapter(Context context, List<Student> dataSource) {
         this.context = context;
         this.dataSource = dataSource;
         inflater = LayoutInflater.from(context);
@@ -29,7 +29,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = inflater.inflate(R.layout.list_layout,parent, false);
+        View view = inflater.inflate(R.layout.list_layout, parent, false);
         return new ViewHolder(view);
     }
 
@@ -48,7 +48,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
         return dataSource.size();
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder{
+    class ViewHolder extends RecyclerView.ViewHolder {
         TextView studName, studBranch, studEnrol;
 
         public ViewHolder(View itemView) {

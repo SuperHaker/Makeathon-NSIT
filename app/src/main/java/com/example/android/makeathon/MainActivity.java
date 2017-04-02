@@ -15,7 +15,6 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import org.apache.commons.net.ftp.FTPClient;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -40,24 +39,38 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         recyclerView = (RecyclerView) findViewById(R.id.list);
         recyclerView.setHasFixedSize(true);
-        layoutManager =new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false);
+        layoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false);
         recyclerView.setLayoutManager(layoutManager);
 
         new RetrieveTask().execute();
 
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
 
+        switch (item.getItemId()) {
+            case R.id.signOut:
+                FirebaseAuth.getInstance().signOut();
+                startActivity(new Intent(this, LogInActivity.class));
+                finish();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     class RetrieveTask extends AsyncTask<Void, Void, Void> {
 
         @Override
         protected Void doInBackground(Void... voids) {
-//                File targetFile = new File(Environment.getExternalStorageDirectory() + File.separator + "Makeathon" + File.separator + "record.xls");
-//                targetFile.mkdirs();
-            FileOutputStream outputStream;
-
             FTPClient ftpClient = new FTPClient();
             try {
                 ftpClient.connect("192.168.5.3", 21);
@@ -66,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
 
                 ftpClient.setFileType(FTPClient.ASCII_FILE_TYPE);
 
-//                    outputStream = new FileOutputStream(targetFile);
                 InputStream inStream = ftpClient.retrieveFileStream("record.xls");
                 runOnUiThread(new Runnable() {
                     @Override
@@ -76,13 +88,11 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
                 ftpClient.disconnect();
-//                    outputStream.close();
                 Workbook wb = Workbook.getWorkbook(inStream);
                 Sheet s = wb.getSheet(0);
                 int row = s.getRows();
-                int col = s.getColumns();
 
-                for (int i = 0; i < row; i++) {
+                for (int i = 1; i < row; i++) {
                     Student student = new Student();
                     Cell z = s.getCell(0, i);
                     student.id = z.getContents();
@@ -96,8 +106,6 @@ public class MainActivity extends AppCompatActivity {
 
 
                 }
-
-
 
 
             } catch (IOException e) {
@@ -130,28 +138,6 @@ public class MainActivity extends AppCompatActivity {
             recyclerView.setAdapter(adapter);
 
         }
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        switch (item.getItemId()) {
-            case R.id.signOut:
-                FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(this, LogInActivity.class));
-                finish();
-                return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
 }

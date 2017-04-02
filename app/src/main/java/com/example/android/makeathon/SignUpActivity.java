@@ -30,61 +30,59 @@ public class SignUpActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_sign_up);
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_sign_up);
         email = (EditText) findViewById(R.id.email);
         password = (EditText) findViewById(R.id.password);
         confirmPassword = (EditText) findViewById(R.id.confirm_password);
         signupButton = (Button) findViewById(R.id.signup_button);
 
 
-
         mAuth = FirebaseAuth.getInstance();
-            mDatabaseReference = FirebaseDatabase.getInstance().getReference();
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference();
 
         signupButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+            @Override
+            public void onClick(View view) {
 
-                    createAccount(email.getText().toString(), password.getText().toString());
-                }
-            });
-
-
-            mAuthListener = new FirebaseAuth.AuthStateListener() {
-                @Override
-                public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                    FirebaseUser user = firebaseAuth.getCurrentUser();
-                    if (user != null) {
-                        // User is signed in
-//                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                    } else {
-                        // User is signed out
-//                    Log.d(TAG, "onAuthStateChanged:signed_out");
-                    }
-                }
-            };
-
-
-        }
-
-        @Override
-        public void onStart() {
-            super.onStart();
-            mAuth.addAuthStateListener(mAuthListener);
-        }
-
-        @Override
-        public void onStop() {
-            super.onStop();
-            if (mAuthListener != null) {
-                mAuth.removeAuthStateListener(mAuthListener);
+                createAccount(email.getText().toString(), password.getText().toString());
             }
+        });
+
+
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                if (user != null) {
+                    // User is signed in
+//                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                } else {
+                    // User is signed out
+//                    Log.d(TAG, "onAuthStateChanged:signed_out");
+                }
+            }
+        };
+
+
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
         }
+    }
 
     private void createAccount(String email, String password) {
 //        Log.d(TAG, "createAccount:" + email);
-
 
 
 //        showProgressDialog();
@@ -98,13 +96,10 @@ public class SignUpActivity extends AppCompatActivity {
 
                             if (task.getException() instanceof FirebaseAuthUserCollisionException) {
                                 Toast.makeText(SignUpActivity.this, "User with this email already exist.", Toast.LENGTH_SHORT).show();
-                            }
-
-                            else{
+                            } else {
                                 Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                             }
-                        }
-                        else{
+                        } else {
                             mAuth.getCurrentUser().sendEmailVerification();
                             addUserProfileInfo(task.getResult().getUser());
                             callMainActivity();
@@ -116,7 +111,7 @@ public class SignUpActivity extends AppCompatActivity {
                 });
     }
 
-    public void addUserProfileInfo(FirebaseUser registeredUser){
+    public void addUserProfileInfo(FirebaseUser registeredUser) {
         String email = registeredUser.getEmail();
         String userId = registeredUser.getUid();
         User user = new User(email);
@@ -125,7 +120,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     }
 
-    public void callMainActivity(){
+    public void callMainActivity() {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }

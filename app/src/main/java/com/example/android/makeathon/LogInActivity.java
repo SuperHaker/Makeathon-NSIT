@@ -27,7 +27,6 @@ public class LogInActivity extends AppCompatActivity {
     private FirebaseAuth.AuthStateListener mAuthListener;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,11 +71,10 @@ public class LogInActivity extends AppCompatActivity {
                         .addOnCompleteListener(LogInActivity.this, new OnCompleteListener<AuthResult>() {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
-                                if(!task.isSuccessful()){
+                                if (!task.isSuccessful()) {
                                     Toast.makeText(getApplicationContext(), "auth_failed", Toast
                                             .LENGTH_LONG).show();
-                                }
-                                else{
+                                } else {
                                     Intent intent = new Intent(getApplicationContext(), MainActivity.class);
                                     startActivity(intent);
 

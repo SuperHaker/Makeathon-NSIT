@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,6 +23,7 @@ public class LogInActivity extends AppCompatActivity {
     EditText emailBox, passwordBox;
     Button loginButton;
     TextView createAccountButton;
+    ProgressBar bar;
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -32,6 +34,7 @@ public class LogInActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_log_in);
         mAuth = FirebaseAuth.getInstance();
+        bar = (ProgressBar) findViewById(R.id.bar);
         emailBox = (EditText) findViewById(R.id.email);
         passwordBox = (EditText) findViewById(R.id.password);
         loginButton = (Button) findViewById(R.id.login_button);
@@ -50,7 +53,7 @@ public class LogInActivity extends AppCompatActivity {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
                 if (user != null) {
                     // User is signed in
-                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                    startActivity(new Intent(getApplicationContext(), Main2Activity.class));
                     finish();
                 } else {
                     // User is signed out
@@ -66,24 +69,25 @@ public class LogInActivity extends AppCompatActivity {
             public void onClick(View view) {
                 String email = emailBox.getText().toString();
                 final String password = passwordBox.getText().toString();
-
+                bar.setVisibility(View.VISIBLE);
                 mAuth.signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener(LogInActivity.this, new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if (!task.isSuccessful()) {
-                                    Toast.makeText(getApplicationContext(), "auth_failed", Toast
-                                            .LENGTH_LONG).show();
-                                } else {
-                                    Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                                    startActivity(intent);
+                                    @Override
+                                    public void onComplete(@NonNull Task<AuthResult> task) {
+                                        if (!task.isSuccessful()) {
+                                            Toast.makeText(getApplicationContext(), "auth_failed", Toast
+                                                    .LENGTH_LONG).show();
+                                        } else {
+                                            Intent intent = new Intent(getApplicationContext(), Main2Activity.class);
+                                            startActivity(intent);
 
+                                        }
+
+                                    }
                                 }
+                        );
 
-                            }
-                        });
-
-
+                bar.setVisibility(View.GONE);
             }
         });
 

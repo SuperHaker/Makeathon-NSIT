@@ -1,17 +1,16 @@
 package com.example.android.makeathon;
 
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
-
-import com.google.firebase.auth.FirebaseAuth;
 
 import org.apache.commons.net.ftp.FTPClient;
 
@@ -24,47 +23,48 @@ import jxl.Cell;
 import jxl.Sheet;
 import jxl.Workbook;
 
-public class MainActivity extends AppCompatActivity {
 
-
+public class Fragment1 extends Fragment {
     List<Student> dataSource = new ArrayList<>();
     RecyclerView recyclerView;
-    RecyclerView.LayoutManager layoutManager;
     ListAdapter adapter;
+    TextView heading;
+    SwipeRefreshLayout swipeRefreshLayout;
+
+
+    public Fragment1() {
+        // Required empty public constructor
+    }
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        recyclerView = (RecyclerView) findViewById(R.id.list);
+
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View v =  inflater.inflate(R.layout.fragment_fragment1, container, false);
+        recyclerView = (RecyclerView) v.findViewById(R.id.list);
+        heading = (TextView) v.findViewById(R.id.heading);
+        swipeRefreshLayout = (SwipeRefreshLayout) v.findViewById(R.id.swiperefresh);
+        heading.setText("All students");
         recyclerView.setHasFixedSize(true);
-        layoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false);
-        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setLayoutManager((new WrapContentLinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false)));
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                dataSource.clear();
+                new RetrieveTask().execute();
+
+            }
+        });
 
         new RetrieveTask().execute();
-
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-
-        switch (item.getItemId()) {
-            case R.id.signOut:
-                FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(this, LogInActivity.class));
-                finish();
-                return true;
-        }
-
-        return super.onOptionsItemSelected(item);
+        return v;
     }
 
     class RetrieveTask extends AsyncTask<Void, Void, Void> {
@@ -80,13 +80,7 @@ public class MainActivity extends AppCompatActivity {
                 ftpClient.setFileType(FTPClient.ASCII_FILE_TYPE);
 
                 InputStream inStream = ftpClient.retrieveFileStream("record.xls");
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(MainActivity.this, "done", Toast.LENGTH_SHORT).show();
 
-                    }
-                });
                 ftpClient.disconnect();
                 Workbook wb = Workbook.getWorkbook(inStream);
                 Sheet s = wb.getSheet(0);
@@ -106,23 +100,24 @@ public class MainActivity extends AppCompatActivity {
 
 
                 }
+                inStream.close();
 
 
             } catch (IOException e) {
                 e.printStackTrace();
-                runOnUiThread(new Runnable() {
+                getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(MainActivity.this, "ioexception", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "ioexception", Toast.LENGTH_SHORT).show();
 
                     }
                 });
             } catch (Exception e) {
                 e.printStackTrace();
-                runOnUiThread(new Runnable() {
+                getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        Toast.makeText(MainActivity.this, "exception", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "exception", Toast.LENGTH_SHORT).show();
 
                     }
                 });
@@ -134,8 +129,10 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            adapter = new ListAdapter(MainActivity.this, dataSource);
+            adapter = new ListAdapter(getContext(), dataSource);
             recyclerView.setAdapter(adapter);
+            swipeRefreshLayout.setRefreshing(false);
+
 
         }
     }
